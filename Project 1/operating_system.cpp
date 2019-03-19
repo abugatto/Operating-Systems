@@ -233,24 +233,22 @@ void read_metadata_file(ifstream& fin, vector<string>& descriptors, vector<char>
    Out: time calculation
 */
 int calculate_time(map<string,int>& cycle_times, vector<string>& descriptors, vector<int>& metadata_codes, int index) {
-   if(descriptors.at(index) == "run") {
-      return metadata_codes.at(index) * cycle_times.at("Processor");
-   } else if(descriptors.at(index) == "hard drive") {
+   if(descriptors.at(index) == "hard drive") {
       return metadata_codes.at(index) * cycle_times.at("Hard drive");
    } else if(descriptors.at(index) == "keyboard") {
       return metadata_codes.at(index) * cycle_times.at("Keyboard");
-   } else if(descriptors.at(index) == "mouse") {
-      return metadata_codes.at(index) * cycle_times.at("Mouse");
+   } else if(descriptors.at(index) == "scanner") {
+      return metadata_codes.at(index) * cycle_times.at("Scanner");
    } else if(descriptors.at(index) == "monitor") {
       return metadata_codes.at(index) * cycle_times.at("Monitor");
-   } else if(descriptors.at(index) == "speaker") {
-      return metadata_codes.at(index) * cycle_times.at("Speaker");
-   } else if(descriptors.at(index) == "block") {
-      return metadata_codes.at(index) * cycle_times.at("Memory");
+   } else if(descriptors.at(index) == "run") {
+      return metadata_codes.at(index) * cycle_times.at("Processor");
    } else if(descriptors.at(index) == "allocate") {
       return metadata_codes.at(index) * cycle_times.at("Memory");
-   } else if(descriptors.at(index) == "printer") {
-      return metadata_codes.at(index) * cycle_times.at("Printer");
+   } else if(descriptors.at(index) == "projector") {
+      return metadata_codes.at(index) * cycle_times.at("Projector");
+   } else if(descriptors.at(index) == "block") {
+      return metadata_codes.at(index) * cycle_times.at("Memory");
    } else {
       throw -8;
    }
