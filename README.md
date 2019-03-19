@@ -12,7 +12,7 @@ Use the shell to compile and run with commands in folder "Project <'project-num'
 
 ## Project 1: File I/O 	
 
-I/O files: 
+**I/O files:** 
 
 1.
 	Name: makefile <br />
@@ -31,7 +31,7 @@ I/O files:
 	Purpose: Contains logged file I/O data <br />
 
 
-Code Files:
+**Code Files:**
 
 1. 	
 	Name: project1.cpp <br />
@@ -46,61 +46,61 @@ Code Files:
 	Operation: Defines and details file I/O functions <br />
 
 
-Functions
+**Functions:**
 
 1.	
-	**Name:** check_configuration_file <br />
-	**Operation:** Checks config file for errors <br />
-	**In:** fin, filename <br />
-	**Out:** m/a <br />
+	Name: check_configuration_file <br />
+	Operation: Checks config file for errors <br />
+	In: fin, filename <br />
+	Out: m/a <br />
 
 2.
-	**Name:** read_configuration_file <br />
-	**Operation:** Parses configuration file and extracts necessary information for OS <br />
-	**In:** fin, ...initialized vars for out... <br />
-	**Out:** component cycle times, metadata filepath, log filepath, log type <br />
+	Name: read_configuration_file <br />
+	Operation: Parses configuration file and extracts necessary information for OS <br />
+	In: fin, ...initialized vars for out... <br />
+	Out: component cycle times, metadata filepath, log filepath, log type <br />
 
 3.
-	**Name:** check_metadata_file <br />
-	**Operation:** Checks metadata file for errors <br />
-	**In:** fin, filepath <br />
-	**Out:** m/a <br />
+	Name: check_metadata_file <br />
+	Operation: Checks metadata file for errors <br />
+	In: fin, filepath <br />
+	Out: m/a <br />
 
 4.
-	**Name:** read_metadata_file <br />
-	**Operation:** Parses metadata file <br /> 
-	**In:** fin <br />
-	**Out:** descriptors, codes, cycles, count <br />
+	Name: read_metadata_file <br />
+	Operation: Parses metadata file <br /> 
+	In: fin <br />
+	Out: descriptors, codes, cycles, count <br />
 
 4.
-	**Name:** calculate_time <br />
-	**Operation:** This function calculates metadata metrics by mapping then to their corresponding calculations <br />
-	**In:** cycle times, descriptors, metadata codes, and index <br />
-	**Out:** time calculation <br />
+	Name: calculate_time <br />
+	Operation: This function calculates metadata metrics by mapping then to their corresponding calculations <br />
+	In: cycle times, descriptors, metadata codes, and index <br />
+	Out: time calculation <br />
 
 5.
-	**Name:** print_log <br />
-	**Operation:** This function prints the log <br />
-	**In:** cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
-	**Out:** N/A <br />
+	Name: print_log <br />
+	Operation: This function prints the log <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 6.
-	**Name:** file_log <br />
-	**Operation:** This function saves the log to file <br />
-	**In:** cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
-	**Out:** N/A <br />
+	Name: file_log <br />
+	Operation: This function saves the log to file <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 7.
-	**Name:** log <br />
-	**Operation:** This function logs the data <br />
-	**In:** cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
-	**Out:** N/A <br />
+	Name: log <br />
+	Operation: This function logs the data <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 8.
-	**Name:** process_errors <br />
-	**Operation:** This function processes thrown errors in the code <br />
-	**In:** error, cycle_times, descriptors, metadata_codes, cycles. log_filepath, log_type, count <br />
-	**Out:** EXIT_FAILURE <br />
+	Name: process_errors <br />
+	Operation: This function processes thrown errors in the code <br />
+	In: error, cycle_times, descriptors, metadata_codes, cycles. log_filepath, log_type, count <br />
+	Out: EXIT_FAILURE <br />
 
 
 ## Project 2: Threads
