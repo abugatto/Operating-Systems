@@ -111,7 +111,7 @@ Configuration File: <br />
 <img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/config.png" height="250">
 
 <br /> Metadata File: <br /> 
-<img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/metadata.png" height="250">
+<img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/metadata.png" height="30">
 
 <br /> Log to Monitor: <br /> 
 <img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png" height="250">
