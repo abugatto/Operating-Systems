@@ -105,6 +105,11 @@ Simulates the file I/O of an operating system, complete with a configuration fil
 	Out: EXIT_FAILURE <br />
 
 
+**Results:**
+
+Inline-style: 
+![alt text](https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png "Log to Monitor")
+
 ## Project 2: Threads
 
 
