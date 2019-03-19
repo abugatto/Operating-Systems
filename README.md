@@ -12,6 +12,8 @@ Use the shell to compile and run with commands in folder "Project <'project-num'
 
 ## Project 1: File I/O 	
 
+Simulates the file I/O of an operating system, complete with a configuration file and metadata file. The code parses through these files for future use. <br />
+
 **I/O files:** 
 
 1.
