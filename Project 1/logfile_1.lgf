@@ -9,3 +9,7 @@ Scanner = 25 ms / cycle
 Logged to: monitor and logfile_1.lgf
 
 Meta-Data Metrics
+P{run}11 - 110 ms
+M{allocate}2 - 60 ms
+O{monitor}7 - 140 ms
+I{hard drive}8 - 120 ms

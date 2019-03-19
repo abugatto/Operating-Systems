@@ -190,14 +190,11 @@ void read_metadata_file(ifstream& fin, vector<string>& descriptors, vector<char>
          fin >> descriptor_append; //get next char
       }
 
-      cout << endl;
-      cout << descriptor_temp << " ";
-
       rbracket = descriptor_append;
-      bool valid_descriptor = descriptor_temp == "start" || descriptor_temp == "end" || descriptor_temp == "run" || 
-                              descriptor_temp == "hard drive" || descriptor_temp == "keyboard" || descriptor_temp == "printer" || 
-                              descriptor_temp == "monitor" || descriptor_temp == "allocate" || descriptor_temp == "block" || 
-                              descriptor_temp == "mouse" || descriptor_temp == "speaker";
+      bool valid_descriptor = descriptor_temp == "begin" || descriptor_temp == "finish" || descriptor_temp == "hard drive" || 
+                              descriptor_temp == "keyboard" || descriptor_temp == "scanner" || descriptor_temp == "monitor" || 
+                              descriptor_temp == "run" || descriptor_temp == "allocate" || descriptor_temp == "projector" || 
+                              descriptor_temp == "block";
       
       if(!valid_descriptor) { //check for invalid descriptor
          throw -6;
@@ -297,7 +294,7 @@ void print_log(map<string,int>& cycle_times, vector<string>& descriptors, vector
       cout << metadata_codes.at(index) << LEFT_PARENTHESE
            << descriptors.at(index) << RIGHT_PARENTHESE
            << cycles.at(index) << SPACE << HYPHEN << SPACE
-           << calculate_time(cycle_times, descriptors, cycles, index)
+           << calculate_time(cycle_times, descriptors, cycles, index) << " ms"
            << endl;
    }
 
@@ -346,7 +343,7 @@ void file_log(map<string, int>& cycle_times, vector<string>& descriptors, vector
       fout << metadata_codes.at(index) << LEFT_PARENTHESE
            << descriptors.at(index) << RIGHT_PARENTHESE
            << cycles.at(index) << SPACE << HYPHEN << SPACE
-           << calculate_time(cycle_times, descriptors, cycles, index)
+           << calculate_time(cycle_times, descriptors, cycles, index) << " ms"
            << endl;
    }
 }
