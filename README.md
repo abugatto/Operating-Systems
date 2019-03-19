@@ -107,8 +107,8 @@ Simulates the file I/O of an operating system, complete with a configuration fil
 
 **Results:**
 
-Inline-style: 
-![alt text](https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png "Log to Monitor")
+Log to Monitor: 
+![alt text](https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png "Log to Monitor" =250x250)
 
 ## Project 2: Threads
 
