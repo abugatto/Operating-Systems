@@ -6,9 +6,9 @@ This repository holds my CS 446: Operating Systems projects.
 
 Use the shell to compile and run with commands in folder "Project <'project-num'>":
 1. compile: <br />
-	> >> make
+	> make
 2. run: <br />
-	> >> ./P<'project-num'> config_<'file-num'>.config
+	> ./P<'project-num'> config_<'file-num'>.config
 
 ## Project 1: File I/O 			     
 
