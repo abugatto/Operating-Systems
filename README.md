@@ -59,49 +59,48 @@ Functions
 	Operation: Parses configuration file and extracts necessary information for OS <br />
 	In: fin, ...initialized vars for out... <br />
 	Out: component cycle times, metadata filepath, log filepath, log type <br />
-	Definition: void read_configuration_file(ifstream& fin, map<string,int>& cycle_times, string& filepath, string& log_filepath, int& log_type); '''
 
 3.
-	Name: check_metadata_file
-	Operation: Checks metadata file for errors
-	In: fin, filepath
-	Out: m/a
+	Name: check_metadata_file <br />
+	Operation: Checks metadata file for errors <br />
+	In: fin, filepath <br />
+	Out: m/a <br />
 
 4.
-	Name: read_metadata_file
-	Operation: Parses metadata file 
-	In: fin
-	Out: descriptors, codes, cycles, count
+	Name: read_metadata_file <br />
+	Operation: Parses metadata file <br /> 
+	In: fin <br />
+	Out: descriptors, codes, cycles, count <br />
 
 4.
-	Name: calculate_time
-	Operation: This function calculates metadata metrics by mapping then to their corresponding calculations
-	In: cycle times, descriptors, metadata codes, and index
-	Out: time calculation
+	Name: calculate_time <br />
+	Operation: This function calculates metadata metrics by mapping then to their corresponding calculations <br />
+	In: cycle times, descriptors, metadata codes, and index <br />
+	Out: time calculation <br />
 
 5.
-	Name: print_log
-	Operation: This function prints the log
-	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-	Out: N/A
+	Name: print_log <br />
+	Operation: This function prints the log <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 6.
-	Name: file_log
-	Operation: This function saves the log to file
-	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-	Out: N/A
+	Name: file_log <br />
+	Operation: This function saves the log to file <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 7.
-	Name: log
-	Operation: This function logs the data
-	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-	Out: N/A
+	Name: log <br />
+	Operation: This function logs the data <br />
+	In: cycle_times, descriptors, metadata_codes, cycles. log_filepath <br />
+	Out: N/A <br />
 
 8.
-	Name: process_errors
-	Operation: This function processes thrown errors in the code
-	In: error, cycle_times, descriptors, metadata_codes, cycles. log_filepath, log_type, count
-	Out: EXIT_FAILURE
+	Name: process_errors <br />
+	Operation: This function processes thrown errors in the code <br />
+	In: error, cycle_times, descriptors, metadata_codes, cycles. log_filepath, log_type, count <br />
+	Out: EXIT_FAILURE <br />
 
 
 ## Project 2: Threads
