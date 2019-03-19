@@ -108,7 +108,7 @@ Simulates the file I/O of an operating system, complete with a configuration fil
 **Results:**
 
 Log to Monitor: 
-![image](https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png =249x211)
+<img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png" height="249">
 
 ## Project 2: Threads
 
