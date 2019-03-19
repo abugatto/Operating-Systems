@@ -22,14 +22,16 @@ Functions
 	Operation: Checks config file for errors <br />
 	In: fin, filename <br />
 	Out: m/a <br />
-	Definition: ''' void check_configuration_file(ifstream& fin, const char *argv[]); '''
+	Definition: 
+	''' void check_configuration_file(ifstream& fin, const char *argv[]); '''
 
 2.
 	Name: read_configuration_file <br />
 	Operation: Parses configuration file and extracts necessary information for OS <br />
 	In: fin, ...initialized vars for out... <br />
 	Out: component cycle times, metadata filepath, log filepath, log type <br />
-	Definition: void read_configuration_file(ifstream& fin, map<string,int>& cycle_times, string& filepath, string& log_filepath, int& log_type); '''
+	Definition: 
+	'''void read_configuration_file(ifstream& fin, map<string,int>& cycle_times, string& filepath, string& log_filepath, int& log_type); '''
 
 
 ## Project 2: Threads
