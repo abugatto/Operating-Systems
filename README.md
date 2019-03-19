@@ -114,7 +114,7 @@ Configuration File: <br />
 <img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/metadata.png" height="100">
 
 <br /> Log to Monitor: <br /> 
-<img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png" height="250">
+<img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png" height="300">
 
 ## Project 2: Threads
 
