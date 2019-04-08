@@ -59,12 +59,12 @@ Operating_System::Operating_System(ifstream& fin, const char *argv[]) {
    string config_filepath = argv[1]; //checks file extension
 
    check_configuration_file(fin, config_filepath);
-   //read_configuration_file(fin, config_filepath, metadata_filepath);
+   read_configuration_file(fin, config_filepath, metadata_filepath);
 
-   //check_metadata_file(fin, metadata_filepath);
-   //read_metadata_file(fin);
+   check_metadata_file(fin, metadata_filepath);
+   read_metadata_file(fin);
 
-   //fill_job_queue();
+   fill_job_queue();
 }
 
 void Operating_System::copy(const Operating_System& OS) {
@@ -324,21 +324,21 @@ void Operating_System::fill_job_queue() { //from instruction vector to PCB's
 */
 int Operating_System::calculate_time(const int& index) const {
    if(instructions.at(index).descriptor == "hard drive") {
-      return instructions.at(index).metadata_code * cycle_times.at("Hard drive");
+      return instructions.at(index).run_cycles * cycle_times.at("Hard drive");
    } else if(instructions.at(index).descriptor == "keyboard") {
-      return instructions.at(index).metadata_code * cycle_times.at("Keyboard");
+      return instructions.at(index).run_cycles * cycle_times.at("Keyboard");
    } else if(instructions.at(index).descriptor == "scanner") {
-      return instructions.at(index).metadata_code * cycle_times.at("Scanner");
+      return instructions.at(index).run_cycles * cycle_times.at("Scanner");
    } else if(instructions.at(index).descriptor == "monitor") {
-      return instructions.at(index).metadata_code * cycle_times.at("Monitor");
+      return instructions.at(index).run_cycles * cycle_times.at("Monitor");
    } else if(instructions.at(index).descriptor == "run") {
-      return instructions.at(index).metadata_code * cycle_times.at("Processor");
+      return instructions.at(index).run_cycles * cycle_times.at("Processor");
    } else if(instructions.at(index).descriptor == "allocate") {
-      return instructions.at(index).metadata_code * cycle_times.at("Memory");
+      return instructions.at(index).run_cycles * cycle_times.at("Memory");
    } else if(instructions.at(index).descriptor == "projector") {
-      return instructions.at(index).metadata_code * cycle_times.at("Projector");
+      return instructions.at(index).run_cycles * cycle_times.at("Projector");
    } else if(instructions.at(index).descriptor == "block") {
-      return instructions.at(index).metadata_code * cycle_times.at("Memory");
+      return instructions.at(index).run_cycles * cycle_times.at("Memory");
    } else {
       throw -8;
    }
