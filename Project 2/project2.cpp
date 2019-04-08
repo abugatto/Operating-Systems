@@ -26,11 +26,13 @@ int main(int argc, const char *argv[]) {
    // declare variables, initialize count and set default logtype (Log to Both)
    ifstream fin;
    string metadata_filepath, log_filepath;
+   int instr_count = 0, log_type = 2, sys_time = 0, threads = 1;
+
    map<string,int> cycle_times;
-   vector<char> metadata_code;
-   vector<string> metadata_descriptors;
-   vector<int> metadata_cycles;
-   int count = 0, log_type = 2;
+   map<string, int> cycle_times;
+   vector<Instruction> instructions;
+   vector<Process_Control_Block> job_queue;
+   vector<Process_Control_Block> ready_queue;
    
    try {
       /*

@@ -12,6 +12,7 @@
 
 #include<iostream>
 #include<fstream>
+#include<pthread.h>
 #include<cstdlib>
 #include<string>
 #include<map>
@@ -23,11 +24,47 @@ using namespace std;
 //                    Process Control Block                   //
 ////////////////////////////////////////////////////////////////
 
+
+
+////////////////////////////////////////////////////////////////
+//                   Auxiliary Abstractions                   //
+////////////////////////////////////////////////////////////////
+
+/*
+   
+*/
+class Instruction {
+   private:
+      char metadata_code;
+      string descriptor;
+      int run_cycles;
+
+      friend class Operating_System;
+};
+
+/*
+   Enumerated type for the process states
+*/
+enum STATE {START, READY, RUNNING, WAITING, EXIT};
+
+////////////////////////////////////////////////////////////////
+//                Process Control Block Class                 //
+////////////////////////////////////////////////////////////////
+
+/*
+   Name: Process_Control_Block
+   Operation: Controls, tracks, and schedules the operating system processes
+*/
 class Process_Control_Block {
    public:
+      Process_Control_Block(vector<Instruction>& process_instructions);
+      
 
    private:
-      
+      int process_number;
+      STATE state = START; //converts to int at compile time
+      int program_counter;
+      vector<Instruction> process;
 };
 
 ////////////////////////////////////////////////////////////////
