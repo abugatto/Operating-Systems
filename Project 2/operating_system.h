@@ -20,6 +20,17 @@
 using namespace std;
 
 ////////////////////////////////////////////////////////////////
+//                    Process Control Block                   //
+////////////////////////////////////////////////////////////////
+
+class Process_Control_Block {
+   public:
+
+   private:
+      
+};
+
+////////////////////////////////////////////////////////////////
 // 					    Parsing Functions					  //
 ////////////////////////////////////////////////////////////////
 
@@ -104,19 +115,6 @@ void log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>
    Out: EXIT_FAILURE
 */
 int process_errors(int error, map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& metadata_codes, vector<int>& cycles, string log_filepath, int log_type, int count);
-
-
-////////////////////////////////////////////////////////////////
-//                    Process Control Block                   //
-////////////////////////////////////////////////////////////////
-
-class Process_Control_Block {
-   public:
-
-   private:
-
-} PCB;
-
 
 
 /////////////////////////////////////////////////////////////////
