@@ -74,7 +74,7 @@ int calculate_time(map<string,int>& cycle_times, vector<string>& descriptors, ve
    In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
    Out: N/A
 */
-void print_log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& mdco, vector<int>& mdcy, string logFilepath, int logType, int count);
+void print_log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& metadata_codes, vector<int>& cycles, string log_filepath, int log_type, int count);
 
 /*
    Name: file_log
@@ -90,7 +90,7 @@ void file_log(map<string,int>& cycle_times, vector<string>& descriptors, vector<
    In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
    Out: N/A
 */
-void log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& mdco, vector<int>& mdcy, string logFilepath, int logType, int count);
+void log(map<string, int>& cycle_times, vector<string>& descriptors, vector<char>& metadata_codes, vector<int>& cycles, string log_filepath, int log_type, int count);
 
 
 ////////////////////////////////////////////////////////////////

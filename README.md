@@ -116,6 +116,6 @@ Configuration File: <br />
 <br /> Log to Monitor: <br /> 
 <img src="https://github.com/abugatto/Operating-Systems/blob/master/Project%201/output.png" height="300">
 
-## Project 2: Threads
+## Project 2: Process Control and Threads
 
 

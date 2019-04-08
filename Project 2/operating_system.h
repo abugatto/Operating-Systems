@@ -7,119 +7,111 @@
  #define OS_H
 
 ////////////////////////////////////////////////////////////////
-// 			  Define Libraries and Namespace				  //
+// 			  Define Libraries and Namespace				        //
 ////////////////////////////////////////////////////////////////
 
-#include<iostream>
-#include<fstream>
-#include<cstdlib>
-#include<string>
-#include<map>
-#include<vector>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <sys/wait.h>
+#include <pthread.h>
+#include <chrono>
+#include <string>
+#include <map>
+#include <vector>
 
 using namespace std;
 
 ////////////////////////////////////////////////////////////////
-// 					    Parsing Functions					  //
+//                   Auxiliary Abstractions                   //
 ////////////////////////////////////////////////////////////////
 
 /*
-   Name: check_configuration_file
-   Operation: Checks config file for errors
-   In: fin, filename
-   Out: m/a
+   
 */
-void check_configuration_file(ifstream& fin, const char *argv[]);
+class Instruction {
+   private:
+      char metadata_code;
+      string descriptor;
+      int run_cycles;
+
+      friend class Operating_System;
+};
 
 /*
-	Name: read_configuration_file
-	Operation: Parses configuration file and extracts necessary information for OS
-	In: fin, ...initialized vars for out...
-	Out: component cycle times, metadata filepath, log filepath, log type
+   Enumerated type for the process states
 */
-void read_configuration_file(ifstream& fin, map<string,int>& cycle_times, string& filepath, string& log_filepath, int& log_type);
+enum STATE {START, READY, RUNNING, WAITING, EXIT};
 
 /*
-   Name: check_metadata_file
-   Operation: Checks metadata file for errors
-   In: fin, filepath
-   Out: m/a
+   Indices of OS process "memory" 
 */
-void check_metadata_file(ifstream& fin, string filepath);
-
-/*
-   Name: read_metadata_file
-   Operation: Parses metadata file 
-   In: fin
-   Out: descriptors, codes, cycles, count
-*/
-void read_metadata_file(ifstream& fin, vector<string>& descriptors, vector<char>& metadata_codes, vector<int>& cycles, int& instr_count);
-
+struct Indices {
+   int start;
+   int end;
+};
 
 ////////////////////////////////////////////////////////////////
-// 					    Logging Functions					  //
+//                Process Control Block Class                 //
 ////////////////////////////////////////////////////////////////
 
 /*
-   Name: calculate_time
-   Operation: This function calculates metadata metrics by mapping then to their corresponding calculations
-   In: cycle times, descriptors, metadata codes, and index
-   Out: time calculation
+   Name: Process_Control_Block
+   Operation: Controls, tracks, and schedules the operating system processes
 */
-int calculate_time(map<string,int>& cycle_times, vector<string>& descriptors, vector<int>& metadata_codes, int index);
-
-/*
-   Name: print_log
-   Operation: This function prints the log
-   In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-   Out: N/A
-*/
-void print_log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& mdco, vector<int>& mdcy, string logFilepath, int logType, int count);
-
-/*
-   Name: file_log
-   Operation: This function saves the log to file
-   In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-   Out: N/A
-*/
-void file_log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& mdco, vector<int>& mdcy, string logFilepath, int logType, int count);
-
-/*
-   Name: log
-   Operation: This function logs the data
-   In: cycle_times, descriptors, metadata_codes, cycles. log_filepath
-   Out: N/A
-*/
-void log(map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& mdco, vector<int>& mdcy, string logFilepath, int logType, int count);
-
-
-////////////////////////////////////////////////////////////////
-// 					  Error Handling Function				        //
-////////////////////////////////////////////////////////////////
-
-/*
-   Name: process_errors
-   Operation: This function processes thrown errors in the code
-   In: error, cycle_times, descriptors, metadata_codes, cycles. log_filepath, log_type, count
-   Out: EXIT_FAILURE
-*/
-int process_errors(int error, map<string,int>& cycle_times, vector<string>& descriptors, vector<char>& metadata_codes, vector<int>& cycles, string log_filepath, int log_type, int count);
-
-
-////////////////////////////////////////////////////////////////
-//                    Process Control Block                   //
-////////////////////////////////////////////////////////////////
-
 class Process_Control_Block {
    public:
+      Process_Control_Block(vector<Instruction>& process_instructions);
+      
 
    private:
+      int process_number;
+      STATE state = START; //converts to int at compile time
+      int program_counter;
+      Indices ix;
+};
 
-} PCB;
+////////////////////////////////////////////////////////////////
+//                   Operating System Class                   //
+////////////////////////////////////////////////////////////////
 
+/*
+   
+*/
+class Operating_System {
+   public: //interface functions
+      Operating_System();
+      Operating_System(ifstream& fin, const char *argv[]);
+      void copy(const Operating_System& OS);
+      void add_new_program(ifstream& fin, const string& metadata_filepath);
+      void log_system() const;
+      void run();
+      friend int process_errors(const int& error, Operating_System& OS);
 
+   private: //internal functions
+      void check_configuration_file(ifstream& fin, const string& config_filepath);
+      void check_metadata_file(ifstream& fin, const string& config_filepath);
+      void read_configuration_file(ifstream& fin, const string& config_filepath, string& metadata_filepath);
+      void read_metadata_file(ifstream& fin);
+      void fill_job_queue();
+      int calculate_time(const int& index) const;
+      void print_log(const bool& offset) const;
+      void file_log(const bool& offset) const;
+      void time_instruction() const;
+      void IO_thread(const int& instr_time);
 
-/////////////////////////////////////////////////////////////////
+      int log_type;
+      int sys_time = 0;
+      int threads = 1;
+      string log_filepath;
+      int instr_count;
+      map<string, int> cycle_times;
+      vector<Instruction> instructions;
+      vector<Process_Control_Block> job_queue;
+      vector<Process_Control_Block> ready_queue;
+};
+
+////////////////////////////////////////////////////////////////
 
 #endif
 

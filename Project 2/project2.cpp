@@ -1,5 +1,5 @@
 /*
-
+   
 
 */
 
@@ -23,20 +23,17 @@ using namespace std;
 ////////////////////////////////////////////////////////////////
 
 int main(int argc, const char *argv[]) {
-   // declare variables, initialize count and set default logtype (Log to Both)
+   Operating_System OS;
    ifstream fin;
-   string metadata_filepath, log_filepath;
-   map<string,int> cycle_times;
-   vector<char> metadata_code;
-   vector<string> metadata_descriptors;
-   vector<int> metadata_cycles;
-   int count = 0, log_type = 2;
-   
-   try {
-      /*
-         Parse configuration file
-      */
 
+   try {
+      //declares OS object, parses, and stores config / metadata files
+      Operating_System temp(fin, argv);
+      OS.copy(temp);
+
+      //prints P1 log
+      OS.log_system();
+/*
       //clear input filestream and open configuration file
       fin.clear();
       fin.open(argv[1]);
@@ -47,9 +44,7 @@ int main(int argc, const char *argv[]) {
       //process configuration file
       read_configuration_file(fin, cycle_times, metadata_filepath, log_filepath, log_type);
 
-      /*
-         Parse metadata file
-      */ 
+      Parse metadata file
       
       //close configuration file
       fin.close();
@@ -67,15 +62,13 @@ int main(int argc, const char *argv[]) {
       //close metadata file
       fin.close();
 
-      /*
-         Log data
-      */
+      Log data
       
       //log results
       log(cycle_times, metadata_descriptors, metadata_code, metadata_cycles, log_filepath, log_type, count);
-      
-   } catch(int errors) { //if error exit program with error code
-      return process_errors(errors, cycle_times, metadata_descriptors, metadata_code, metadata_cycles, log_filepath, log_type, count);
+*/   
+   } catch(int error) { //if error exit program with error code
+      return process_errors(error, OS);
    }
 
    // otherwise exit program successfully
