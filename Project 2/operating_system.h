@@ -13,7 +13,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include <sys/wait.h>
 #include <pthread.h>
 #include <chrono>
 #include <string>
@@ -27,16 +26,9 @@ using namespace std;
 ////////////////////////////////////////////////////////////////
 
 /*
-   
+   Enumerated type for the log states
 */
-class Instruction {
-   private:
-      char metadata_code;
-      string descriptor;
-      int run_cycles;
-
-      friend class Operating_System;
-};
+enum LOG_STATE {MONITOR, OUTPUT_FILE, MONITOR_AND_OUTPUT_FILE};
 
 /*
    Enumerated type for the process states
@@ -51,6 +43,34 @@ struct Indices {
    int end;
 };
 
+/*
+   Instruction wrapper class
+*/
+class Instruction {
+   private:
+      char metadata_code;
+      string descriptor;
+      int run_cycles; //if > 1 it iterates until == 1 and updates runtime accordingly
+      int runtime; 
+
+      friend class Process_Control_Block;
+      friend class Operating_System;
+};
+
+/*
+   Resource management wrapper class
+*/
+class Hardware {
+   private:
+      int system_memory;
+      //int memory_block_size;
+      //int memory_used;
+      //int projectors;
+      //int hard_drives;
+
+      friend class Operating_System;
+};
+
 ////////////////////////////////////////////////////////////////
 //                Process Control Block Class                 //
 ////////////////////////////////////////////////////////////////
@@ -61,11 +81,17 @@ struct Indices {
 */
 class Process_Control_Block {
    public:
-      Process_Control_Block(vector<Instruction>& process_instructions);
-      
+      Process_Control_Block(const int& PID, const vector<Instruction>& instructions);
+      int get_pid() const;
+      void set_program_counter(const int& count);
+      void increment_program_counter();
+      int get_program_counter() const;
+      void set_state(const STATE& state);
+      STATE get_state() const;
+      Indices get_indices() const;
 
    private:
-      int process_number;
+      int pid;
       STATE state = START; //converts to int at compile time
       int program_counter;
       Indices ix;
@@ -84,27 +110,29 @@ class Operating_System {
       Operating_System(ifstream& fin, const char *argv[]);
       void copy(const Operating_System& OS);
       void add_new_program(ifstream& fin, const string& metadata_filepath);
-      void log_system() const;
+      void log_system_data() const;
       void run();
+
       friend int process_errors(const int& error, Operating_System& OS);
 
    private: //internal functions
       void check_configuration_file(ifstream& fin, const string& config_filepath);
       void check_metadata_file(ifstream& fin, const string& config_filepath);
       void read_configuration_file(ifstream& fin, const string& config_filepath, string& metadata_filepath);
-      void read_metadata_file(ifstream& fin);
-      void fill_job_queue();
-      int calculate_time(const int& index) const;
+      void read_metadata_file(ifstream& fin, int& pids);
+      void fill_job_queue(const int& pids);
+      int calculate_instruction_time(const int& index) const;
+      void allocate_memory();
+      double time_instruction(const double& start, const double& end) const;
+      void* IO_thread();
       void print_log(const bool& offset) const;
       void file_log(const bool& offset) const;
-      void time_instruction() const;
-      void IO_thread(const int& instr_time);
 
-      int log_type;
-      int sys_time = 0;
-      int threads = 1;
+      LOG_STATE log_type; 
+      double sys_time;
+      int threads;
       string log_filepath;
-      int instr_count;
+      Hardware resources; ////////////////////////// needs to be filled
       map<string, int> cycle_times;
       vector<Instruction> instructions;
       vector<Process_Control_Block> job_queue;

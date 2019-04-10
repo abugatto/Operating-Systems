@@ -13,7 +13,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include <sys/wait.h>
 #include <pthread.h>
 #include <chrono>
 #include <string>
@@ -27,9 +26,6 @@ using namespace std;
 //                    Define Symbols                          //
 ////////////////////////////////////////////////////////////////
 
-const int MONITOR = 0;
-const int OUTPUT_FILE = 1;
-const int MONITOR_AND_OUTPUT_FILE = 2;
 const char SPACE = ' ';
 const char NEWLINE = '\n';
 const char LEFT_PARENTHESE = '{';
@@ -39,6 +35,56 @@ const char HYPHEN = '-';
 ////////////////////////////////////////////////////////////////
 //                 Process Control Block Functions            //
 ////////////////////////////////////////////////////////////////
+
+Process_Control_Block::Process_Control_Block(const int& PID, const vector<Instruction>& instructions) {
+   pid = PID;
+
+   //iterate through instructions to find indices of processi
+   string descriptor = instructions.at(0).descriptor; //Starts at first instruction
+   int counter = 0;
+   for(int p = 0; p < pid; p++) { //find beginning of target process
+      while(descriptor != "begin") { //loop ends every time begin is detected
+         counter++;
+         descriptor = instructions.at(counter).descriptors;
+      }
+   }
+
+   ix.start = counter;
+   while(descriptor != "finish") { //loop ends every time finish is detected
+      counter++;
+      descriptor = instructions.at(counter).descriptors;
+   }
+
+   ix.end = counter;
+}
+
+int Process_Control_Block::get_pid() const {
+   return pid;
+}
+
+void Process_Control_Block::set_program_counter(const int& count) {
+   program_counter = count;
+}
+
+void Process_Control_Block::increment_program_counter() {
+   program_counter++;
+}
+
+int Process_Control_Block::get_program_counter() const {
+   return program_counter;
+}
+
+void Process_Control_Block::set_state(const STATE& new_state) {
+   state = new_state;
+}
+
+STATE Process_Control_Block::get_state() const {
+   return state;
+}
+
+Indices Process_Control_Block::get_indices() const {
+   return ix;
+}
 
 ////////////////////////////////////////////////////////////////
 //                 Operating System Functions                 //
@@ -55,16 +101,21 @@ Operating_System::Operating_System(ifstream& fin, const char *argv[]) {
    log_type = MONITOR_AND_OUTPUT_FILE; 
    sys_time = 0;
    threads = 1;
-   string metadata_filepath;
-   string config_filepath = argv[1]; //checks file extension
 
+   if(argv[0][0] == '\0') { //if cstring is empty 
+      throw 0;
+   }
+
+   string config_filepath = argv[1]; //checks file extension
+   string metadata_filepath;
    check_configuration_file(fin, config_filepath);
    read_configuration_file(fin, config_filepath, metadata_filepath);
 
-   check_metadata_file(fin, metadata_filepath);
+   int pids = 0;
+   check_metadata_file(fin, metadata_filepath, int& pids);
    read_metadata_file(fin);
 
-   fill_job_queue();
+   fill_job_queue(pids);
 }
 
 void Operating_System::copy(const Operating_System& OS) {
@@ -80,13 +131,18 @@ void Operating_System::copy(const Operating_System& OS) {
 }
 
 void Operating_System::add_new_program(ifstream& fin, const string& metadata_filepath) {
-   check_metadata_file(fin, metadata_filepath);
+   instructions.clear();
+   job_queue.clear();
+   ready_queue.clear();
+
+   int pids = 0;
+   check_metadata_file(fin, metadata_filepath, int& pids);
    read_metadata_file(fin);
 
-   fill_job_queue();
+   fill_job_queue(pids);
 }
 
-void Operating_System::log_system() const {
+void Operating_System::log_system_data() const {
    if(log_type == MONITOR) {
       print_log(false);
    } else if(log_type == OUTPUT_FILE) {
@@ -98,7 +154,46 @@ void Operating_System::log_system() const {
 }
 
 void Operating_System::run() {
-   return;
+   //open the log file and log running program
+   ofstream fout; //open file
+   fout.open(log_filepath, ios::app); //ios::app goes to end of file
+
+   //set up processes and begin 
+   int i = 0;
+   while(i < job_queue.size()) { //transfer job queue to ready queue
+      ready_queue.push_back() = job_queue.at(0);
+      job_queue.pop_front();
+      i++;
+   }
+
+   
+
+   //state = START
+   if() {
+
+   }
+
+   //state = READY
+   if() {
+
+   }
+
+   //state = RUNNING
+   if() {
+
+   }
+
+   //state = WAITING
+   if() {
+
+   }
+
+   //state = EXIT
+   if() {
+
+   }
+
+   fout.close();
 }
 
 /*
@@ -175,7 +270,7 @@ void Operating_System::read_configuration_file(ifstream& fin, const string& conf
    string component;
    fin >> component;
       
-   while(component != "Log:") {
+   while(component != "System") {
       if(component == "Hard") { //needed because "Hard drive" is two words
          string drive;
          fin >> drive;
@@ -188,6 +283,16 @@ void Operating_System::read_configuration_file(ifstream& fin, const string& conf
       cycle_times.emplace(component, cycle_time); //add new cycle time to map
       fin >> component; //get next component
    }
+
+   /*
+      get system memory 
+   */
+
+   int system_memory = 0; 
+   fin.ignore(256, ':');
+   fin >> system_memory;
+
+   resources.system_memory = 1000 * (int) system_memory; //convert from kilobytes to bytes
 
    /*
       get log type
@@ -228,7 +333,7 @@ void Operating_System::read_configuration_file(ifstream& fin, const string& conf
    In: fin
    Out: descriptors, codes, cycles, count
 */
-void Operating_System::read_metadata_file(ifstream& fin) {
+void Operating_System::read_metadata_file(ifstream& fin, int& pids) {
    if(!instructions.empty()) {
       instructions.clear();
    }
@@ -247,6 +352,10 @@ void Operating_System::read_metadata_file(ifstream& fin) {
       fin >> code_temp >> lbracket; //get metadata code
       if(code_temp < 'A' || code_temp > 'Z') { //if not uppercase char throw error
          throw -5;
+      }
+
+      if(code_temp == 'P') {
+         pids++;
       }
       
       new_instr.metadata_code = code_temp;
@@ -308,12 +417,19 @@ void Operating_System::read_metadata_file(ifstream& fin) {
    fin.clear();
 }
 
-void Operating_System::fill_job_queue() { //from instruction vector to PCB's
+void Operating_System::fill_job_queue(const int& pids) { //from instruction vector to PCB's
    if(!job_queue.empty()) {
       job_queue.clear();
    }
 
-   return;
+   if(!ready_queue.empty()) {
+      ready_queue.clear();
+   }
+
+   for(int pid = 0; pid < pids; pid++) {
+      Process_Control_Block temp(pid, instructions);
+      job_queue.push_back(temp);
+   }
 }
 
 /*
@@ -322,7 +438,7 @@ void Operating_System::fill_job_queue() { //from instruction vector to PCB's
    In: cycle times, descriptors, metadata codes, and index
    Out: time calculation
 */
-int Operating_System::calculate_time(const int& index) const {
+int Operating_System::calculate_cycle_time(const int& index) const {
    if(instructions.at(index).descriptor == "hard drive") {
       return instructions.at(index).run_cycles * cycle_times.at("Hard drive");
    } else if(instructions.at(index).descriptor == "keyboard") {
@@ -352,6 +468,13 @@ int Operating_System::calculate_time(const int& index) const {
 */
 void Operating_System::print_log(const bool& offset) const {
    /*
+      print resource data
+   */
+
+   cout << endl << "Resource Data" << endl;
+   cout << "System Memory = " << resources.system_memory << endl;
+
+   /*
       print configuration data
    */
 
@@ -367,8 +490,6 @@ void Operating_System::print_log(const bool& offset) const {
    cout << "Logged to: ";
    if(log_type == MONITOR) {
       cout << "monitor" << endl << endl;
-   } else if(log_type == OUTPUT_FILE) {
-      cout << log_filepath << endl << endl;
    } else if(log_type == MONITOR_AND_OUTPUT_FILE) {
       cout << "monitor and " << log_filepath << endl << endl;
    }
@@ -388,7 +509,7 @@ void Operating_System::print_log(const bool& offset) const {
       cout << instructions.at(index).metadata_code << LEFT_PARENTHESE
            << instructions.at(index).descriptor << RIGHT_PARENTHESE
            << instructions.at(index).run_cycles << SPACE << HYPHEN << SPACE
-           << calculate_time(index) << " ms"
+           << calculate_cycle_time(index) << " ms"
            << endl;
    }
 
@@ -402,13 +523,20 @@ void Operating_System::print_log(const bool& offset) const {
    Out: N/A
 */
 void Operating_System::file_log(const bool& offset) const {
-   /*
-      save configuration data
-   */
-
    ofstream fout; //open file
    fout.clear();
    fout.open(log_filepath);
+
+   /*
+      save resource data
+   */
+
+   fout << endl << "Resource Data" << endl;
+   fout << "System Memory = " << resources.system_memory << endl;
+
+   /*
+      save configuration data
+   */
    
    fout << "Configuration File Data" << endl;   
    for(auto& x : cycle_times) { //loop using auto type for map -> c++11
@@ -420,9 +548,7 @@ void Operating_System::file_log(const bool& offset) const {
    */
    
    fout << "Logged to: ";
-   if(log_type == MONITOR) {
-      fout << "monitor" << endl << endl;
-   } else if(log_type == OUTPUT_FILE) {
+   if(log_type == OUTPUT_FILE) {
       fout << log_filepath << endl << endl;
    } else if(log_type == MONITOR_AND_OUTPUT_FILE) {
       fout << "monitor and " << log_filepath << endl << endl;
@@ -443,18 +569,27 @@ void Operating_System::file_log(const bool& offset) const {
       fout << instructions.at(index).metadata_code << LEFT_PARENTHESE
            << instructions.at(index).descriptor << RIGHT_PARENTHESE
            << instructions.at(index).run_cycles << SPACE << HYPHEN << SPACE
-           << calculate_time(index) << " ms"
+           << calculate_cycle_time(index) << " ms"
            << endl;
    }
+
+   fout << endl;
+
+   fout.close();
 }
 
-void Operating_System::time_instruction() const {
-   return;
+void allocate_memory() {
+
 }
 
-void Operating_System::IO_thread(const int& instr_time) {        
-   return;
+double time_instruction(const double& start, const double& end) const {
+
 }
+
+void* IO_thread(void* instr_time) {
+
+}
+
 
 ////////////////////////////////////////////////////////////////
 //                      Friend Functions                      //
