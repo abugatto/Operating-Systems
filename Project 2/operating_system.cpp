@@ -13,11 +13,14 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <thread>
 #include <pthread.h>
 #include <chrono>
+#include <time.h>
 #include <string>
 #include <map>
 #include <vector>
+#include <queue>
 #include "operating_system.h"
 
 using namespace std;
@@ -45,14 +48,14 @@ Process_Control_Block::Process_Control_Block(const int& PID, const vector<Instru
    for(int p = 0; p < pid; p++) { //find beginning of target process
       while(descriptor != "begin") { //loop ends every time begin is detected
          counter++;
-         descriptor = instructions.at(counter).descriptors;
+         descriptor = instructions.at(counter).descriptor;
       }
    }
 
    ix.start = counter;
    while(descriptor != "finish") { //loop ends every time finish is detected
       counter++;
-      descriptor = instructions.at(counter).descriptors;
+      descriptor = instructions.at(counter).descriptor;
    }
 
    ix.end = counter;
@@ -60,18 +63,6 @@ Process_Control_Block::Process_Control_Block(const int& PID, const vector<Instru
 
 int Process_Control_Block::get_pid() const {
    return pid;
-}
-
-void Process_Control_Block::set_program_counter(const int& count) {
-   program_counter = count;
-}
-
-void Process_Control_Block::increment_program_counter() {
-   program_counter++;
-}
-
-int Process_Control_Block::get_program_counter() const {
-   return program_counter;
 }
 
 void Process_Control_Block::set_state(const STATE& new_state) {
@@ -92,14 +83,12 @@ Indices Process_Control_Block::get_indices() const {
 
 Operating_System::Operating_System() {
    log_type = MONITOR_AND_OUTPUT_FILE;
-   sys_time = 0;
    threads = 1;
-   instr_count = 0;
 }
 
 Operating_System::Operating_System(ifstream& fin, const char *argv[]) {
-   log_type = MONITOR_AND_OUTPUT_FILE; 
-   sys_time = 0;
+   log_type = MONITOR_AND_OUTPUT_FILE;
+   system_counter = 0;
    threads = 1;
 
    if(argv[0][0] == '\0') { //if cstring is empty 
@@ -112,34 +101,34 @@ Operating_System::Operating_System(ifstream& fin, const char *argv[]) {
    read_configuration_file(fin, config_filepath, metadata_filepath);
 
    int pids = 0;
-   check_metadata_file(fin, metadata_filepath, int& pids);
-   read_metadata_file(fin);
+   check_metadata_file(fin, metadata_filepath, pids);
+   read_metadata_file(fin, pids);
 
-   fill_job_queue(pids);
+   fill_process_queue(pids);
 }
 
 void Operating_System::copy(const Operating_System& OS) {
    log_type = OS.log_type;
    sys_time = OS.sys_time;
    threads = OS.threads;
-   instr_count = OS.instr_count;
    log_filepath = OS.log_filepath;
+   resources = OS.resources;
    cycle_times = OS.cycle_times;
    instructions = OS.instructions;
-   job_queue = OS.job_queue;
-   ready_queue = OS.ready_queue;
+   process_queue = OS.process_queue;
 }
 
 void Operating_System::add_new_program(ifstream& fin, const string& metadata_filepath) {
    instructions.clear();
-   job_queue.clear();
-   ready_queue.clear();
+   while(!process_queue.empty()) { 
+      process_queue.pop(); 
+   }
 
    int pids = 0;
-   check_metadata_file(fin, metadata_filepath, int& pids);
-   read_metadata_file(fin);
+   check_metadata_file(fin, metadata_filepath, pids);
+   read_metadata_file(fin, pids);
 
-   fill_job_queue(pids);
+   fill_process_queue(pids);
 }
 
 void Operating_System::log_system_data() const {
@@ -158,39 +147,284 @@ void Operating_System::run() {
    ofstream fout; //open file
    fout.open(log_filepath, ios::app); //ios::app goes to end of file
 
-   //set up processes and begin 
-   int i = 0;
-   while(i < job_queue.size()) { //transfer job queue to ready queue
-      ready_queue.push_back() = job_queue.at(0);
-      job_queue.pop_front();
-      i++;
-   }
+   //Start timer -> runtime
+   sys_time = chrono::high_resolution_clock::now();
+   chrono::high_resolution_clock::time_point time1 = sys_time;
+   chrono::high_resolution_clock::time_point time2 = sys_time; 
 
-   
+   print_time(fout, time1, time2);
 
-   //state = START
-   if() {
+   //loop through processes and place on job queue until 
+   Process_Control_Block* process = nullptr;
+   int PID = 0;
+   while(PID != -1) {
 
-   }
+      //sorting algorithm after each process iteration
+      //
+      //
 
-   //state = READY
-   if() {
+      //set current process
+      process = &process_queue.front();
+      PID = process->get_pid() + 1;
+      Indices idx = process->get_indices();
 
-   }
+      //loops through instructions
+      int program_counter = idx.start;
+      while(program_counter != idx.end) { //exits when process ends or when process is stopped
+         sys_time = chrono::high_resolution_clock::now();
+         time1 = sys_time;
 
-   //state = RUNNING
-   if() {
+         if(instructions.at(program_counter).metadata_code == 'S') {
+            if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+               cout << "Simulator program ";
+            }
 
-   }
+            if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+               fout << "Simulator program ";
+            }
 
-   //state = WAITING
-   if() {
+            if(instructions.at(program_counter).descriptor == "begin") {
+               process->set_state(START);
 
-   }
+               if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  cout << "starting" << endl;
+               }
 
-   //state = EXIT
-   if() {
+               if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  fout << "starting" << endl;
+               }
+            } else if(instructions.at(program_counter).descriptor == "finish") {
+               process->set_state(EXIT);
 
+               if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  cout << "ending" << endl;
+               }
+
+               if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  fout << "ending";
+               }
+            }
+         }
+
+         // check metadata code and output data accordingly
+         if(instructions.at(program_counter).metadata_code == 'A') {
+            if(instructions.at(program_counter).descriptor == "begin") {
+               process->set_state(START);
+
+               for(int j = 0; j < 2; j++) {
+                  if(j == 0) {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "OS: preparing process " << PID << " " << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "OS: preparing process " << PID << " " << endl;
+                     }
+                  } else if(j == 1) {
+                     this_thread::sleep_for(chrono::milliseconds(calculate_sleep_time(program_counter)));
+
+                     sys_time = chrono::high_resolution_clock::now();
+                     time2 = sys_time;
+                     printTime(fout, time1, time2);
+
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "OS: starting process " << PID << " " << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "OS: starting process " << PID << " " << endl;
+                     }
+                  }
+               }
+            } else if(instructions.at(program_counter).descriptor == "finish") {
+               process->set_state(EXIT);
+
+               if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  cout << "OS: removing process " << PID << " " << endl;
+               }
+
+               if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                  fout << "OS: removing process " << PID << " " << endl;
+               }
+            }
+         }
+
+         // check metadata code and output data accordingly
+         if(instructions.at(program_counter).metadata_code == 'P') {
+            process->set_state(RUNNING);
+
+            for(int j = 0; j < 2; j++) {
+               if(j == 0) {
+                  if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     cout << "Process " << PID << ": start processing action" << endl;
+                  }
+
+                  if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     fout << "Process " << PID << ": start processing action" << endl;
+                  }
+               } else if(j == 1) {
+                  this_thread::sleep_for(chrono::milliseconds(calculate_sleep_time(program_counter)));
+
+                  sys_time = chrono::high_resolution_clock::now();
+                  time2 = sys_time;
+                  printTime(fout, time1, time2);
+
+                  if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     cout << "Process " << PID << ": end processing action" << endl;
+                  }
+
+                  if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     fout << "Process " << PID << ": end processing action" << endl;
+                  }
+               }
+            }
+         }
+
+         // check metadata code and output data accordingly
+         if(instructions.at(program_counter).metadata_code == 'M') {
+            process->set_state(WAITING);
+
+            if(instructions.at(program_counter).descriptor == "allocate") {
+               for(int j = 0; j < 2; j++) {
+                  if(j == 0) {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "Process " << PID << ": allocating memory" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "Process " << PID << ": allocating memory" << endl;
+                     }
+                  } else if(j == 1) {
+                     this_thread::sleep_for(chrono::milliseconds(calculate_sleep_time(program_counter)));
+
+                     sys_time = chrono::high_resolution_clock::now();
+                     time2 = sys_time;
+                     printTime(fout, time1, time2);
+
+                     int addr = allocate_memory();
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "memory allocated at 0x" << setfill('0') << setw(8) << addr << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "memory allocated at 0x" << setfill('0') << setw(8) << addr << endl;
+                     }
+                  }
+               }
+            } else if(instructions.at(program_counter).descriptor == "block") {
+               for(int j = 0; j < 2; j++) {
+                  if(j == 0) {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "Process " << PID << ": start memory blocking" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "Process " << PID << ": start memory blocking" << endl;
+                     }
+                  } else if(j == 1) {
+                     this_thread::sleep_for(chrono::milliseconds(calculate_sleep_time(program_counter)));
+
+                     sys_time = chrono::high_resolution_clock::now();
+                     time2 = sys_time;
+                     printTime(fout, time1, time2);
+
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << "Process " << PID << ": end memory blocking" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << "Process " << PID << ": end memory blocking" << endl;
+                     }
+                  }
+               }
+            }
+         }
+
+         // check metadata code and output data accordingly
+         if(instructions.at(program_counter).metadata_code == 'O' || instructions.at(program_counter).metadata_code == 'I') {
+            // initialize threads for input / output only
+            pthread_t tid;
+            pthread_attr_t attr;
+            pthread_attr_init(&attr);
+
+            process->set_state(WAITING);
+            for(int j = 0; j < 2; j++) {
+               if(j == 0) {
+                  if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     cout << "Process " << PID << ": start " << instructions.at(program_counter).descriptor;
+                  }
+
+                  if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     fout << "Process " << PID << ": start " << instructions.at(program_counter).descriptor;
+                  }
+
+                  if(instructions.at(program_counter).metadata_code == 'O') {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << " output" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << " output" << endl;
+                     }
+                  } else if(instructions.at(program_counter).metadata_code == 'I') {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << " input" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << " input" << endl;
+                     }
+                  }
+               } else if(j == 1) {
+                  int waitTime = calculate_sleep_time(program_counter);
+                  void* ptr = &waitTime;
+
+                  //create and join threads
+                  pthread_create(&tid, &attr, IO_thread, ptr);
+                  pthread_join(tid, NULL);
+
+                  //calculate and print time
+                  sys_time = chrono::high_resolution_clock::now();
+                  time2 = sys_time;
+                  printTime(fout, time1, time2);
+
+                  if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     cout << "Process " << PID << ": end " << instructions.at(program_counter).descriptor;
+                  }
+                  if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                     fout << "Process " << PID << ": end " << instructions.at(program_counter).descriptor;
+                  }
+
+                  if(instructions.at(program_counter).metadata_code == 'O') {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << " output" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << " output" << endl;
+                     }
+                  } else if(instructions.at(program_counter).metadata_code == 'I') {
+                     if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        cout << " input" << endl;
+                     }
+
+                     if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+                        fout << " input" << endl;
+                     }
+                  }
+               }
+            }
+         }
+
+         program_counter++;
+         system_counter++;
+      }
+
+      //after each process
+      process_queue.pop();
+      if(process_queue.empty()) {
+         PID = -1;
+      }
    }
 
    fout.close();
@@ -417,18 +651,66 @@ void Operating_System::read_metadata_file(ifstream& fin, int& pids) {
    fin.clear();
 }
 
-void Operating_System::fill_job_queue(const int& pids) { //from instruction vector to PCB's
-   if(!job_queue.empty()) {
-      job_queue.clear();
-   }
-
-   if(!ready_queue.empty()) {
-      ready_queue.clear();
+void Operating_System::fill_process_queue(const int& pids) { //from instruction vector to PCB's
+   if(!process_queue.empty()) {
+      process_queue.clear();
    }
 
    for(int pid = 0; pid < pids; pid++) {
       Process_Control_Block temp(pid, instructions);
-      job_queue.push_back(temp);
+      process_queue.push_back(temp);
+   }
+}
+
+void Operating_System::print_time(ofstream& fout, high_resolution_clock::time_point& time1, high_resolution_clock::time_point& time2) {
+   duration<double> timespan = duration_cast<duration<double>> (time2 - time1);
+   instructions[system_counter].runtime = timespan;
+
+   if(log_type == MONITOR || log_type == MONITOR_AND_OUTPUT_FILE) {
+      cout << fixed << setprecision(6) << time_span.count() << SPACE << HYPHEN << SPACE;
+   }
+
+   if(log_type == OUTPUT_FILE || log_type == MONITOR_AND_OUTPUT_FILE) {
+      fout << fixed << setprecision(6) << time_span.count() << SPACE << HYPHEN << SPACE;
+   }
+}
+
+int Operating_System::allocate_memory() {
+   unsigned int address = srand(time(NULL)); //for random numbers
+   return rand() % resources.memory; //use std::hex in cout
+}
+
+void* Operating_System::IO_thread(void* instr_time) {
+   int* time = (int*) instr_time;
+
+   //Wait
+   sleep(chrono::milliseconds(time));
+
+   //Quit Thread
+   pthread_exit(NULL);
+}
+
+double Operating_System::calculate_sleep_time(const int& index) {
+   if(instructions.at(index).descriptor == "start" || instructions.at(index).descriptor == "finish") {
+      return (double) 0;
+   } else if(instructions.at(index).descriptor == "hard drive") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Hard drive");
+   } else if(instructions.at(index).descriptor == "keyboard") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Keyboard");
+   } else if(instructions.at(index).descriptor == "scanner") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Scanner");
+   } else if(instructions.at(index).descriptor == "monitor") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Monitor");
+   } else if(instructions.at(index).descriptor == "run") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Processor");
+   } else if(instructions.at(index).descriptor == "allocate") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Memory");
+   } else if(instructions.at(index).descriptor == "projector") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Projector");
+   } else if(instructions.at(index).descriptor == "block") {
+      return (double) instructions.at(index).run_cycles * (double) cycle_times.at("Memory");
+   } else {
+      throw -8;
    }
 }
 
@@ -578,19 +860,6 @@ void Operating_System::file_log(const bool& offset) const {
    fout.close();
 }
 
-void allocate_memory() {
-
-}
-
-double time_instruction(const double& start, const double& end) const {
-
-}
-
-void* IO_thread(void* instr_time) {
-
-}
-
-
 ////////////////////////////////////////////////////////////////
 //                      Friend Functions                      //
 //////////////////////////////////////////////////////////////// 
@@ -647,6 +916,13 @@ int process_errors(const int& error, Operating_System& OS) {
       OS.print_log(true);         
       OS.file_log(true);
       cout << "ERROR CODE -7: INVALID[NEGATIVE] OR MISSING METADATA CYCLES" << endl;      
+      return EXIT_FAILURE;
+   }
+
+      if(error == -8) {
+      OS.print_log(true);         
+      OS.file_log(true);
+      cout << "ERROR CODE -8: INVALID INSTRUCTION DATA" << endl;      
       return EXIT_FAILURE;
    }
 

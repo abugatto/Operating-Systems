@@ -15,9 +15,11 @@
 #include <cstdlib>
 #include <pthread.h>
 #include <chrono>
+#include <time.h>
 #include <string>
 #include <map>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -51,7 +53,7 @@ class Instruction {
       char metadata_code;
       string descriptor;
       int run_cycles; //if > 1 it iterates until == 1 and updates runtime accordingly
-      int runtime; 
+      chrono::duration<double> runtime; 
 
       friend class Process_Control_Block;
       friend class Operating_System;
@@ -93,7 +95,6 @@ class Process_Control_Block {
    private:
       int pid;
       STATE state = START; //converts to int at compile time
-      int program_counter;
       Indices ix;
 };
 
@@ -102,7 +103,8 @@ class Process_Control_Block {
 ////////////////////////////////////////////////////////////////
 
 /*
-   
+   Name: Operating_System
+   Operation: Configures system from file, logs system, controls processing, and controls multiprocessing
 */
 class Operating_System {
    public: //interface functions
@@ -117,26 +119,27 @@ class Operating_System {
 
    private: //internal functions
       void check_configuration_file(ifstream& fin, const string& config_filepath);
-      void check_metadata_file(ifstream& fin, const string& config_filepath);
+      void check_metadata_file(ifstream& fin, const string& config_filepath, int& pids);
       void read_configuration_file(ifstream& fin, const string& config_filepath, string& metadata_filepath);
       void read_metadata_file(ifstream& fin, int& pids);
-      void fill_job_queue(const int& pids);
-      int calculate_instruction_time(const int& index) const;
-      void allocate_memory();
-      double time_instruction(const double& start, const double& end) const;
+      void fill_process_queue(const int& pids);
+      void print_time(ofstream& fout, chrono::high_resolution_clock::time_point& time1, chrono::high_resolution_clock::time_point& time2);
+      int allocate_memory() const;
       void* IO_thread();
+      double calculate_sleep_time(const int& index) const;
+      int calculate_instruction_time(const int& index) const;
       void print_log(const bool& offset) const;
       void file_log(const bool& offset) const;
 
       LOG_STATE log_type; 
-      double sys_time;
+      chrono::high_resolution_clock::time_point sys_time;
+      int system_counter;
       int threads;
       string log_filepath;
-      Hardware resources; ////////////////////////// needs to be filled
+      Hardware resources;
       map<string, int> cycle_times;
       vector<Instruction> instructions;
-      vector<Process_Control_Block> job_queue;
-      vector<Process_Control_Block> ready_queue;
+      queue<Process_Control_Block> process_queue;
 };
 
 ////////////////////////////////////////////////////////////////

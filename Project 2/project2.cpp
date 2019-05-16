@@ -1,18 +1,18 @@
-/*
-   
-
-*/
 
 ////////////////////////////////////////////////////////////////
 //            Define Libraries and Namespace                  //
 ////////////////////////////////////////////////////////////////
 
-#include<iostream>
-#include<fstream>
-#include<cstdlib>
-#include<string>
-#include<map>
-#include<vector>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <pthread.h>
+#include <chrono>
+#include <time.h>
+#include <string>
+#include <map>
+#include <vector>
+#include <queue>
 #include "operating_system.h"
 
 using namespace std;
