@@ -1,6 +1,6 @@
 CXX = g++
-SRCFILES = main.cpp functions.cpp
-CXXFLAGS = -std=c++11 -g -lpthread -O0 -o Sim03
+SRCFILES = project2.cpp operating_system.cpp
+CXXFLAGS = -std=c++11 -Wall -g -O0 -o -pthread P2
 
 all:
 	$(CXX) $(SRCFILES) $(CXXFLAGS)
