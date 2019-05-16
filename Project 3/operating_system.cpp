@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <thread>
 #include <pthread.h>
+#include<semaphore.h>
 #include <chrono>
 #include <time.h>
 #include <string>
@@ -86,10 +87,11 @@ Operating_System::Operating_System() {
    threads = 1;
 }
 
-Operating_System::Operating_System(ifstream& fin, const char *argv[]) {
+Operating_System::Operating_System(ifstream& fin, const char *argv[], sem_t& sem) {
    log_type = MONITOR_AND_OUTPUT_FILE;
    system_counter = 0;
    threads = 1;
+   semaphore = sem;
 
    if(argv[0][0] == '\0') { //if cstring is empty 
       throw 0;
@@ -113,6 +115,7 @@ void Operating_System::copy(const Operating_System& OS) {
    threads = OS.threads;
    log_filepath = OS.log_filepath;
    resources = OS.resources;
+   semaphore = OS.semaphore;
    cycle_times = OS.cycle_times;
    instructions = OS.instructions;
    process_queue = OS.process_queue;
@@ -154,15 +157,14 @@ void Operating_System::run() {
 
    print_time(fout, time1, time2);
 
+   //sorting algorithm after each process iteration
+   //
+   //
+
    //loop through processes and place on job queue until 
    Process_Control_Block* process = nullptr;
    int PID = 0;
    while(PID != -1) {
-
-      //sorting algorithm after each process iteration
-      //
-      //
-
       //set current process
       process = &process_queue.front();
       PID = process->get_pid() + 1;
@@ -347,6 +349,9 @@ void Operating_System::run() {
             pthread_attr_t attr;
             pthread_attr_init(&attr);
 
+            //lock critical section
+            sem_wait(&semaphore);
+
             process->set_state(WAITING);
             for(int j = 0; j < 2; j++) {
                if(j == 0) {
@@ -414,6 +419,9 @@ void Operating_System::run() {
                   }
                }
             }
+
+            //unlock semaphore after breaking out of critical section
+            sem_post(&semaphore);
          }
 
          program_counter++;
@@ -519,7 +527,7 @@ void Operating_System::read_configuration_file(ifstream& fin, const string& conf
    }
 
    /*
-      get system memory 
+      get system memory and block size
    */
 
    int system_memory = 0; 
@@ -527,6 +535,28 @@ void Operating_System::read_configuration_file(ifstream& fin, const string& conf
    fin >> system_memory;
 
    resources.system_memory = 1000 * (int) system_memory; //convert from kilobytes to bytes
+
+   int block_size = 0; 
+   fin.ignore(256, ':');
+   fin >> block_size;
+
+   resources.memory_block_size = 1000 * (int) block_size; //convert from kilobytes to bytes
+
+   /*
+      get projector and hard drive quantity
+   */
+
+   int hard_drives = 0; 
+   fin.ignore(256, ':');
+   fin >> hard_drives;
+
+   resources.hard_drives = hard_drives; //convert from kilobytes to bytes
+
+   int projectors = 0; 
+   fin.ignore(256, ':');
+   fin >> projectors;
+
+   resources.projectors = projectors; //convert from kilobytes to bytes
 
    /*
       get log type

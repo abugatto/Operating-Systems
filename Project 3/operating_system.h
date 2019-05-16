@@ -14,6 +14,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <pthread.h>
+#include<semaphore.h>
 #include <chrono>
 #include <time.h>
 #include <string>
@@ -65,10 +66,10 @@ class Instruction {
 class Hardware {
    private:
       int system_memory;
-      //int memory_block_size;
-      //int memory_used;
-      //int projectors;
-      //int hard_drives;
+      int memory_block_size;
+      int memory_used;
+      int projectors;
+      int hard_drives;
 
       friend class Operating_System;
 };
@@ -109,7 +110,7 @@ class Process_Control_Block {
 class Operating_System {
    public: //interface functions
       Operating_System();
-      Operating_System(ifstream& fin, const char *argv[]);
+      Operating_System(ifstream& fin, const char *argv[], sem_t& semaphore);
       void copy(const Operating_System& OS);
       void add_new_program(ifstream& fin, const string& metadata_filepath);
       void log_system_data() const;
@@ -137,6 +138,7 @@ class Operating_System {
       int threads;
       string log_filepath;
       Hardware resources;
+      sem_t semaphore;
       map<string, int> cycle_times;
       vector<Instruction> instructions;
       queue<Process_Control_Block> process_queue;

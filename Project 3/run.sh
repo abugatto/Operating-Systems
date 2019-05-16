@@ -2,4 +2,4 @@
 
 clear; clear;
 make;
-./P2 config_1.config
+./P3 config_1.config

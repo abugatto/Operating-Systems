@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <pthread.h>
+#include<semaphore.h>
 #include <chrono>
 #include <time.h>
 #include <string>
@@ -27,9 +28,15 @@ int main(int argc, const char *argv[]) {
    ifstream fin;
    bool metrics = false;
 
+   //semaphore object
+   sem_t semaphore;
+
+   //initialize semaphore
+   sem_init(&semaphore, 0, 1);
+
    try {
       //declares OS object, parses, and stores config / metadata files
-      Operating_System* temp = new Operating_System(fin, argv);
+      Operating_System* temp = new Operating_System(fin, argv, semaphore);
       OS.copy(*temp);
       delete temp;
 
