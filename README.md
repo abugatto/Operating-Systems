@@ -1,6 +1,6 @@
 # Operating-Systems
 
-This repository holds my CS 446: Operating Systems projects.
+This repository holds my Operating Systems projects.
 
 ## How to Compile and Run				  
 
